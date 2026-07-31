@@ -1,0 +1,27 @@
+{{- /* LincComment — 自建评论系统 */ -}}
+{{- $comment := .Scratch.Get "comment" | default dict -}}
+{{- if $comment.linc -}}
+  {{- if $comment.linc.enable -}}
+    <link rel="stylesheet" href="{{ "css/comment.css" | relURL }}">
+
+    <div id="linc-comment" class="linc-comment">
+      <h3 class="linc-title">评论 (<span id="linc-count">0</span>)</h3>
+      <form id="linc-form" class="linc-form">
+        <div class="linc-form-row">
+          <input type="text" id="linc-nick" placeholder="昵称 *" maxlength="50" required>
+          <input type="email" id="linc-mail" placeholder="邮箱 (可选，用于 Gravatar 头像)" maxlength="255">
+        </div>
+        <textarea id="linc-text" placeholder="写下你的评论..." maxlength="5000" required></textarea>
+        <input type="hidden" id="linc-url" value="{{ .RelPermalink }}">
+        <input type="hidden" id="linc-pid" value="">
+        <div class="linc-form-actions">
+          <span id="linc-reply-to" class="linc-reply-to"></span>
+          <button type="submit" id="linc-submit">发表评论</button>
+        </div>
+      </form>
+      <div id="linc-list" class="linc-list"></div>
+    </div>
+
+    <script src="{{ "js/comment.js" | relURL }}"></script>
+  {{- end -}}
+{{- end -}}
