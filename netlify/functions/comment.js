@@ -50,7 +50,7 @@ exports.handler = async (event) => {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   };
 
   if (event.httpMethod === 'OPTIONS') {
@@ -115,16 +115,34 @@ exports.handler = async (event) => {
         return { statusCode: 400, headers, body: JSON.stringify({ error: '昵称最长50字，内容最长5000字' }) };
       }
 
+      // hCaptcha 验证
+      if (process.env.HCAPTCHA_SECRET) {
+        const hcaptchaToken = body.hcaptcha || '';
+        if (!hcaptchaToken) {
+          return { statusCode: 400, headers, body: JSON.stringify({ error: '请完成人机验证' }) };
+        }
+        const verify = await fetch('https://hcaptcha.com/siteverify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ secret: process.env.HCAPTCHA_SECRET, response: hcaptchaToken }).toString()
+        });
+        const verifyResult = await verify.json();
+        if (!verifyResult.success) {
+          return { statusCode: 400, headers, body: JSON.stringify({ error: '人机验证失败，请重试' }) };
+        }
+      }
+
       const { rows } = await pool.query(
         `INSERT INTO wl_comment (nick, mail, comment, url, pid, rid, ip, status)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, 'approved')
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING id, nick, mail, comment, url, pid, rid, ip, createdat`,
-        [nick, mail, comment, url, pid, rid, ip]
+        [nick, mail, comment, url, pid, rid, ip, process.env.COMMENT_APPROVAL === 'true' ? 'awaiting' : 'approved']
       );
 
       rateLimitMap.set(ip, Date.now());
       const newComment = rows[0];
       newComment.avatar = gravatar(newComment.mail);
+      newComment.needsApproval = process.env.COMMENT_APPROVAL === 'true';
 
       return { statusCode: 201, headers, body: JSON.stringify({ success: true, comment: newComment }) };
     }
@@ -137,6 +155,17 @@ exports.handler = async (event) => {
       const id = event.queryStringParameters?.id;
       if (!id) return { statusCode: 400, headers, body: JSON.stringify({ error: '缺少评论ID' }) };
       await pool.query(`UPDATE wl_comment SET status = 'spam' WHERE id = $1`, [id]);
+      return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
+    }
+
+    if (event.httpMethod === 'PUT') {
+      const pwd = event.headers['x-admin-password'] || '';
+      if (pwd !== process.env.ADMIN_PASSWORD) {
+        return { statusCode: 403, headers, body: JSON.stringify({ error: '密码错误' }) };
+      }
+      const id = event.queryStringParameters?.id;
+      if (!id) return { statusCode: 400, headers, body: JSON.stringify({ error: '缺少评论ID' }) };
+      await pool.query(`UPDATE wl_comment SET status = 'approved' WHERE id = $1`, [id]);
       return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
     }
 

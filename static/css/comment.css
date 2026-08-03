@@ -122,6 +122,21 @@
   margin-left: 1.5rem;
 }
 
+/* ── Toast ── */
+.linc-toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  z-index: 9999; pointer-events: none;
+}
+.linc-toast-msg {
+  background: rgba(0,0,0,0.82); color: #fff;
+  padding: 0.65rem 1.2rem; border-radius: 8px; font-size: 0.9rem;
+  white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  animation: lincFadeIn .25s ease;
+}
+.linc-toast-msg.out { animation: lincFadeOut .3s ease forwards; }
+@keyframes lincFadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes lincFadeOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(-10px)} }
+
 /* ── 深色模式 ── */
 [theme="dark"] .linc-form input,
 [theme="dark"] .linc-form textarea {

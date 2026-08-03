@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LincComment 管理后台</title>
 <style>
-:root{--bg:#f8f9fa;--card:#fff;--text:#333;--text2:#999;--border:#e9ecef;--blue:#448aff;--red:#f44336}
+:root{--bg:#f8f9fa;--card:#fff;--text:#333;--text2:#999;--border:#e9ecef;--blue:#448aff;--green:#4caf50;--red:#f44336}
 @media(prefers-color-scheme:dark){:root{--bg:#1a1a2e;--card:#16213e;--text:#ddd;--text2:#888;--border:#2a2a4a}}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
@@ -13,7 +13,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .login-box p{color:var(--text2);font-size:.85rem;margin-bottom:1.5rem}
 .login-box input{width:100%;padding:.65rem .9rem;margin-bottom:.75rem;border:1px solid var(--border);border-radius:8px;font-size:.9rem;background:var(--bg);color:var(--text)}
 .login-box button{width:100%;padding:.65rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:.9rem;cursor:pointer;font-weight:500}
-.login-box button:hover{opacity:.9}
 .top{max-width:900px;margin:0 auto;padding:1.5rem 1rem 0}
 .top h1{font-size:1.2rem;margin-bottom:.25rem}
 .top .sub{color:var(--text2);font-size:.85rem}
@@ -25,12 +24,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .stat{flex:1;background:var(--card);padding:1rem;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.04);text-align:center}
 .stat-num{font-size:1.6rem;font-weight:700}
 .stat-label{font-size:.78rem;color:var(--text2);margin-top:.2rem}
+.stat-await{color:#ff9800}
 .list{max-width:900px;margin:0 auto;padding:0 1rem 3rem}
 .card{background:var(--card);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.04);margin-bottom:1rem;overflow:hidden}
 .card-title{padding:.75rem 1rem;font-size:.9rem;font-weight:600;background:var(--bg);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
 .card-title span{color:var(--text2);font-weight:400;font-size:.8rem}
 .row{display:flex;align-items:flex-start;padding:.75rem 1rem;gap:.75rem;border-bottom:1px solid var(--border)}
 .row:last-child{border-bottom:none}
+.row.awaiting{background:rgba(255,152,0,.06)}
 .avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:#e8e8e8}
 .row-body{flex:1;min-width:0}
 .row-head{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem .75rem;margin-bottom:.2rem}
@@ -39,9 +40,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .row-mail{color:var(--text2);font-size:.8rem}
 .row-time{color:var(--text2);font-size:.78rem}
 .row-text{font-size:.9rem;line-height:1.6;word-break:break-word}
-.row-del{background:none;border:1px solid var(--red);color:var(--red);border-radius:5px;padding:.2rem .7rem;font-size:.78rem;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.row-del:hover{background:var(--red);color:#fff}
+.row-actions{display:flex;gap:.35rem;flex-shrink:0}
+.btn-sm{padding:.2rem .65rem;border-radius:5px;font-size:.75rem;cursor:pointer;border:none}
+.btn-approve{background:var(--green);color:#fff}
+.btn-approve:hover{opacity:.85}
+.btn-del{background:none;border:1px solid var(--red);color:var(--red)}
+.btn-del:hover{background:var(--red);color:#fff}
 .empty{text-align:center;color:var(--text2);padding:4rem 1rem}
+.badge{padding:.15rem .5rem;border-radius:10px;font-size:.7rem;font-weight:600}
+.badge-awaiting{background:#fff3e0;color:#e65100}
+.badge-approved{background:#e8f5e9;color:#2e7d32}
 </style>
 </head>
 <body>
@@ -77,23 +85,31 @@ function fmt(t){if(!t)return'';var d=new Date(t);return d.getFullYear()+'-'+(d.g
 function load(){
   return fetch(API+'?admin=1',{headers:{'x-admin-password':pwd}}).then(function(r){if(!r.ok)return false;return r.json()}).then(function(data){
     if(!data)return false;
-    var groups={},total=0;
-    data.forEach(function(c){var u=c.url||'/';if(!groups[u])groups[u]=[];groups[u].push(c);total++});
-    document.getElementById('stats').innerHTML='<div class="stat"><div class="stat-num">'+total+'</div><div class="stat-label">总评论数</div></div><div class="stat"><div class="stat-num">'+Object.keys(groups).length+'</div><div class="stat-label">涉及文章</div></div>';
+    var groups={},total=0,awaiting=0;
+    data.forEach(function(c){var u=c.url||'/';if(!groups[u])groups[u]=[];groups[u].push(c);total++;if(c.status==='awaiting')awaiting++;});
+    document.getElementById('stats').innerHTML=
+      '<div class="stat'+ (awaiting>0?' stat-await':'') +'"><div class="stat-num">'+awaiting+'</div><div class="stat-label">待审核</div></div>'
+      +'<div class="stat"><div class="stat-num">'+total+'</div><div class="stat-label">总评论数</div></div>'
+      +'<div class="stat"><div class="stat-num">'+Object.keys(groups).length+'</div><div class="stat-label">涉及文章</div></div>';
     var h='';
     for(var u in groups){
       h+='<div class="card"><div class="card-title">'+u+'<span>'+groups[u].length+' 条</span></div>';
       groups[u].forEach(function(c){
-        h+='<div class="row">'
+        var isAwaiting=c.status==='awaiting';
+        h+='<div class="row'+(isAwaiting?' awaiting':'')+'">'
           +'<img class="avatar" src="'+c.avatar+'" alt="" onerror="this.style.background=\'#e8e8e8\'">'
           +'<div class="row-body"><div class="row-head">'
           +'<span class="row-nick">'+(c.nick||'匿名')+'</span>'
-          +'<span class="meta-right">'
           +(c.mail?'<span class="row-mail">'+c.mail+'</span>':'')
+          +'<span class="meta-right">'
+          +(isAwaiting?'<span class="badge badge-awaiting">待审核</span>':'')
           +'<span class="row-time">'+fmt(c.createdat)+'</span>'
           +'</span>'
           +'</div><div class="row-text">'+(c.comment||'')+'</div></div>'
-          +'<button class="row-del" onclick="del('+c.id+')">删除</button>'
+          +'<div class="row-actions">'
+          +(isAwaiting?'<button class="btn-sm btn-approve" onclick="approve('+c.id+')">通过</button>':'')
+          +'<button class="btn-sm btn-del" onclick="del('+c.id+')">删除</button>'
+          +'</div>'
           +'</div>';
       });
       h+='</div>';
@@ -101,6 +117,9 @@ function load(){
     document.getElementById('list').innerHTML=h||'<div class="empty">暂无评论</div>';
     return true;
   }).catch(function(){return false});
+}
+function approve(id){
+  fetch(API+'?id='+id,{method:'PUT',headers:{'x-admin-password':pwd}}).then(function(r){if(r.ok)load()});
 }
 function del(id){
   if(!confirm('确定删除这条评论？'))return;

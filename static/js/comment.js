@@ -1,6 +1,9 @@
 (function() {
   var API = '/.netlify/functions/comment';
   var url = document.getElementById('linc-url').value;
+  var hToken = '';
+
+  window.lincHcaptchaOK = function(token) { hToken = token; };
 
   function load() {
     fetch(API + '?url=' + encodeURIComponent(url))
@@ -67,6 +70,7 @@
     var pid = document.getElementById('linc-pid').value || null;
 
     if (!nick || !text) return alert('昵称和内容不能为空');
+    if (!hToken) return alert('请先完成人机验证');
 
     btn.disabled = true;
     btn.textContent = '提交中...';
@@ -74,7 +78,7 @@
     fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ nick: nick, mail: mail, comment: text, url: url, pid: pid ? parseInt(pid) : null })
+      body: JSON.stringify({ nick: nick, mail: mail, comment: text, url: url, pid: pid ? parseInt(pid) : null, hcaptcha: hToken })
     })
       .then(function(r) { return r.json(); })
       .then(function(data) {
@@ -82,14 +86,31 @@
           document.getElementById('linc-text').value = '';
           document.getElementById('linc-pid').value = '';
           document.getElementById('linc-reply-to').innerHTML = '';
+          hToken = '';
+          hcaptcha.reset();
+          toast(data.comment.needsApproval
+            ? '评论已提交，审核通过后显示'
+            : '评论发表成功');
           load();
         } else {
           alert(data.error || '发表失败');
+          hToken = '';
+          hcaptcha.reset();
         }
       })
-      .catch(function() { alert('网络错误'); })
+      .catch(function() { alert('网络错误'); hToken = ''; hcaptcha.reset(); })
       .finally(function() { btn.disabled = false; btn.textContent = '发表评论'; });
   });
+
+  function toast(msg) {
+    var el = document.getElementById('linc-toast');
+    if (!el) return;
+    var t = document.createElement('div');
+    t.className = 'linc-toast-msg'; t.textContent = msg;
+    el.appendChild(t);
+    setTimeout(function() { t.classList.add('out'); }, 2500);
+    setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 2800);
+  }
 
   load();
 })();
