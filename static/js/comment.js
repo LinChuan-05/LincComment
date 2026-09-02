@@ -2,6 +2,7 @@
   var API = '/.netlify/functions/comment';
   var url = document.getElementById('linc-url').value;
   var hToken = '';
+  var hcaptchaEnabled = window.LINC_HCAPTCHA === true;
 
   window.lincHcaptchaOK = function(token) { hToken = token; };
 
@@ -70,7 +71,7 @@
     var pid = document.getElementById('linc-pid').value || null;
 
     if (!nick || !text) return alert('昵称和内容不能为空');
-    if (!hToken) return alert('请先完成人机验证');
+    if (hcaptchaEnabled && !hToken) return alert('请先完成人机验证');
 
     btn.disabled = true;
     btn.textContent = '提交中...';

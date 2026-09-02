@@ -154,7 +154,7 @@ exports.handler = async (event) => {
       }
       const id = event.queryStringParameters?.id;
       if (!id) return { statusCode: 400, headers, body: JSON.stringify({ error: '缺少评论ID' }) };
-      await pool.query(`UPDATE wl_comment SET status = 'spam' WHERE id = $1`, [id]);
+      await pool.query(`DELETE FROM wl_comment WHERE id = $1`, [id]);
       return { statusCode: 200, headers, body: JSON.stringify({ success: true }) };
     }
 

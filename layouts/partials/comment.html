@@ -16,7 +16,9 @@
         <input type="hidden" id="linc-pid" value="">
         <div class="linc-form-actions">
           <span id="linc-reply-to" class="linc-reply-to"></span>
-          <div class="h-captcha" data-sitekey="21d206f0-812e-4614-88cc-897e8e543ba8" data-callback="lincHcaptchaOK" data-size="compact"></div>
+          {{- if $comment.linc.hcaptcha -}}
+          <div class="h-captcha" data-sitekey="{{ $comment.linc.hcaptchaSitekey }}" data-callback="lincHcaptchaOK" data-size="compact"></div>
+          {{- end -}}
           <button type="submit" id="linc-submit">发表评论</button>
         </div>
       </form>
@@ -24,7 +26,10 @@
       <div id="linc-toast" class="linc-toast"></div>
     </div>
 
+    {{- if $comment.linc.hcaptcha -}}
     <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    {{- end -}}
+    <script>window.LINC_HCAPTCHA = {{ if $comment.linc.hcaptcha }}true{{ else }}false{{ end }};</script>
     <script src="{{ "js/comment.js" | relURL }}"></script>
   {{- end -}}
 {{- end -}}

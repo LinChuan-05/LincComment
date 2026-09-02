@@ -4,71 +4,130 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LincComment 管理后台</title>
 <style>
-:root{--bg:#f8f9fa;--card:#fff;--text:#333;--text2:#999;--border:#e9ecef;--blue:#448aff;--green:#4caf50;--red:#f44336}
-@media(prefers-color-scheme:dark){:root{--bg:#1a1a2e;--card:#16213e;--text:#ddd;--text2:#888;--border:#2a2a4a}}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
-.login-box{max-width:360px;margin:10vh auto 0;padding:2rem;background:var(--card);border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
-.login-box h1{font-size:1.3rem;margin-bottom:.5rem}
-.login-box p{color:var(--text2);font-size:.85rem;margin-bottom:1.5rem}
-.login-box input{width:100%;padding:.65rem .9rem;margin-bottom:.75rem;border:1px solid var(--border);border-radius:8px;font-size:.9rem;background:var(--bg);color:var(--text)}
-.login-box button{width:100%;padding:.65rem;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:.9rem;cursor:pointer;font-weight:500}
-.top{max-width:900px;margin:0 auto;padding:1.5rem 1rem 0}
-.top h1{font-size:1.2rem;margin-bottom:.25rem}
-.top .sub{color:var(--text2);font-size:.85rem}
-.top .btns{margin-top:.75rem;display:flex;gap:.5rem}
-.btn{padding:.4rem 1rem;border-radius:6px;border:none;font-size:.85rem;cursor:pointer;font-weight:500}
-.btn-out{background:var(--border);color:var(--text)}
-.btn-refresh{background:var(--blue);color:#fff}
-.stats{display:flex;gap:1rem;margin:1.5rem auto;max-width:900px;padding:0 1rem}
-.stat{flex:1;background:var(--card);padding:1rem;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.04);text-align:center}
-.stat-num{font-size:1.6rem;font-weight:700}
-.stat-label{font-size:.78rem;color:var(--text2);margin-top:.2rem}
-.stat-await{color:#ff9800}
-.list{max-width:900px;margin:0 auto;padding:0 1rem 3rem}
-.card{background:var(--card);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.04);margin-bottom:1rem;overflow:hidden}
-.card-title{padding:.75rem 1rem;font-size:.9rem;font-weight:600;background:var(--bg);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.card-title span{color:var(--text2);font-weight:400;font-size:.8rem}
-.row{display:flex;align-items:flex-start;padding:.75rem 1rem;gap:.75rem;border-bottom:1px solid var(--border)}
-.row:last-child{border-bottom:none}
-.row.awaiting{background:rgba(255,152,0,.06)}
-.avatar{width:36px;height:36px;border-radius:50%;flex-shrink:0;background:#e8e8e8}
-.row-body{flex:1;min-width:0}
-.row-head{display:flex;align-items:center;flex-wrap:wrap;gap:.4rem .75rem;margin-bottom:.2rem}
-.row-head .meta-right{margin-left:auto;display:flex;align-items:center;gap:.75rem;white-space:nowrap}
-.row-nick{font-weight:600;font-size:.9rem}
-.row-mail{color:var(--text2);font-size:.8rem}
-.row-time{color:var(--text2);font-size:.78rem}
-.row-text{font-size:.9rem;line-height:1.6;word-break:break-word}
-.row-actions{display:flex;gap:.35rem;flex-shrink:0}
-.btn-sm{padding:.2rem .65rem;border-radius:5px;font-size:.75rem;cursor:pointer;border:none}
-.btn-approve{background:var(--green);color:#fff}
-.btn-approve:hover{opacity:.85}
-.btn-del{background:none;border:1px solid var(--red);color:var(--red)}
-.btn-del:hover{background:var(--red);color:#fff}
-.empty{text-align:center;color:var(--text2);padding:4rem 1rem}
-.badge{padding:.15rem .5rem;border-radius:10px;font-size:.7rem;font-weight:600}
-.badge-awaiting{background:#fff3e0;color:#e65100}
-.badge-approved{background:#e8f5e9;color:#2e7d32}
+/* Hallmark · macrostructure: Workbench · tone: utilitarian · theme: Cobalt */
+:root{
+  --paper:oklch(98% 0.003 260);
+  --paper-2:oklch(100% 0 0);
+  --ink:oklch(22% 0.01 260);
+  --ink-2:oklch(45% 0.01 260);
+  --ink-3:oklch(65% 0.01 260);
+  --accent:oklch(56% 0.18 255);
+  --accent-2:oklch(48% 0.16 255);
+  --danger:oklch(55% 0.21 22);
+  --danger-bg:oklch(97% 0.02 22);
+  --success:oklch(55% 0.17 160);
+  --success-bg:oklch(96% 0.03 155);
+  --warn:oklch(65% 0.17 72);
+  --warn-bg:oklch(97% 0.04 75);
+  --rule:oklch(90% 0.005 260);
+  --space-xs:4px;--space-sm:8px;--space-md:16px;--space-lg:24px;--space-xl:32px;--space-2xl:48px;
+  --radius-sm:6px;--radius-md:10px;--radius-lg:14px;
+  --text-sm:0.8125rem;--text-base:0.9375rem;--text-lg:1.125rem;--text-xl:1.375rem;
+  --dur:150ms;--ease:cubic-bezier(.4,0,.2,1);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:16px;line-height:1.5;color:var(--ink);background:var(--paper);
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --paper:oklch(15% 0.008 260);
+    --paper-2:oklch(20% 0.008 260);
+    --ink:oklch(92% 0.005 260);
+    --ink-2:oklch(70% 0.008 260);
+    --ink-3:oklch(50% 0.006 260);
+    --accent:oklch(72% 0.12 240);
+    --accent-2:oklch(62% 0.14 245);
+    --danger:oklch(65% 0.18 22);
+    --danger-bg:oklch(25% 0.03 20);
+    --success:oklch(65% 0.14 155);
+    --success-bg:oklch(22% 0.03 150);
+    --warn:oklch(72% 0.14 70);
+    --warn-bg:oklch(25% 0.04 65);
+    --rule:oklch(28% 0.008 260);
+  }
+}
+*,::before,::after{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh}
+/* ── Login ── */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:var(--space-lg)}
+.login-card{width:100%;max-width:380px;padding:var(--space-xl);background:var(--paper-2);border-radius:var(--radius-lg);border:1px solid var(--rule)}
+.login-card h1{font-size:var(--text-xl);font-weight:650;margin-bottom:var(--space-sm);letter-spacing:-0.02em}
+.login-card p{color:var(--ink-2);font-size:var(--text-sm);margin-bottom:var(--space-lg)}
+.login-card label{display:block;font-size:var(--text-sm);font-weight:550;margin-bottom:var(--space-xs);color:var(--ink-2)}
+.login-card input{width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:var(--radius-sm);font-size:var(--text-base);background:var(--paper);color:var(--ink);transition:border-color var(--dur) var(--ease)}
+.login-card input:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.login-card button{margin-top:var(--space-md);width:100%;padding:10px 0;border:none;border-radius:var(--radius-sm);background:var(--accent);color:#fff;font-size:var(--text-base);font-weight:550;cursor:pointer;transition:background var(--dur) var(--ease)}
+.login-card button:hover{background:var(--accent-2)}
+.login-card button:active{transform:translateY(1px)}
+/* ── Top Bar ── */
+.top-bar{position:sticky;top:0;z-index:10;background:color-mix(in oklch,var(--paper) 85%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--rule);padding:0 var(--space-lg)}
+.top-inner{max-width:960px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:var(--space-md) 0}
+.top-title{font-size:var(--text-lg);font-weight:650;letter-spacing:-0.01em}
+.top-actions{display:flex;gap:var(--space-sm);align-items:center}
+.btn{padding:6px 14px;border-radius:var(--radius-sm);font-size:var(--text-sm);font-weight:550;cursor:pointer;border:none;transition:all var(--dur) var(--ease)}
+.btn-ghost{background:transparent;color:var(--ink-2)}
+.btn-ghost:hover{color:var(--ink);background:var(--rule)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{background:var(--accent-2)}
+.btn-accent:active{transform:translateY(1px)}
+/* ── Stats ── */
+.stats-bar{max-width:960px;margin:var(--space-lg) auto 0;padding:0 var(--space-lg);display:flex;gap:var(--space-md)}
+.stat-card{flex:1;padding:var(--space-md);border-radius:var(--radius-md);border:1px solid var(--rule);background:var(--paper-2);min-width:0}
+.stat-num{font-size:var(--text-xl);font-weight:700}
+.stat-label{font-size:var(--text-sm);color:var(--ink-3);margin-top:2px}
+.stat-await .stat-num{color:var(--warn)}
+.stat-await{border-color:var(--warn);background:var(--warn-bg)}
+/* ── List ── */
+.list{max-width:960px;margin:var(--space-lg) auto var(--space-2xl);padding:0 var(--space-lg)}
+.article-group{margin-bottom:var(--space-lg)}
+.article-title{padding:10px var(--space-md);background:var(--paper-2);border:1px solid var(--rule);border-radius:var(--radius-sm) var(--radius-sm) 0 0;font-size:var(--text-sm);font-weight:600;display:flex;justify-content:space-between;align-items:center;color:var(--ink-2)}
+.article-title span{font-weight:400;color:var(--ink-3);font-size:0.75rem}
+.comment-row{display:flex;gap:var(--space-md);padding:var(--space-md);border:1px solid var(--rule);border-top:none;background:var(--paper-2);align-items:flex-start}
+.comment-row:last-child{border-radius:0 0 var(--radius-sm) var(--radius-sm)}
+.comment-row.awaiting{background:var(--warn-bg);border-left:3px solid var(--warn)}
+.avatar{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:var(--rule)}
+.comment-body{flex:1;min-width:0}
+.comment-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:0 var(--space-md);margin-bottom:var(--space-xs)}
+.comment-nick{font-weight:600;font-size:var(--text-base)}
+.comment-mail{font-size:var(--text-sm);color:var(--ink-3)}
+.comment-time{font-size:var(--text-sm);color:var(--ink-3);margin-left:auto}
+.comment-text{font-size:var(--text-base);line-height:1.6;word-break:break-word;color:var(--ink)}
+.comment-actions{display:flex;gap:var(--space-xs);flex-shrink:0;align-self:flex-start;margin-top:2px}
+.btn-sm{padding:4px 10px;font-size:0.75rem;font-weight:550;border-radius:4px;cursor:pointer;border:none;transition:all var(--dur) var(--ease)}
+.btn-approve{background:var(--success);color:#fff}
+.btn-approve:hover{filter:brightness(1.1)}
+.btn-delete{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+.btn-delete:hover{background:var(--danger);color:#fff}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:600;letter-spacing:0.02em}
+.badge-warn{background:var(--warn);color:#fff}
+.empty-state{text-align:center;padding:var(--space-2xl) var(--space-lg);color:var(--ink-3);font-size:var(--text-base)}
+.empty-state svg{margin-bottom:var(--space-md);opacity:.4}
+/* ── Focus ── */
+button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* ── Reduced motion ── */
+@media(prefers-reduced-motion:reduce){*,::before,::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
 </style>
 </head>
 <body>
-<div id="login" class="login-box">
-  <h1>LincComment</h1>
-  <p>输入密码登录管理后台</p>
-  <input type="password" id="pwd" placeholder="管理员密码" onkeydown="if(event.key==='Enter')login()">
-  <button onclick="login()">登 录</button>
+<div id="login" class="login-screen">
+  <div class="login-card">
+    <h1>LincComment</h1>
+    <p>管理后台 · 输入密码登录</p>
+    <label for="pwd">管理员密码</label>
+    <input type="password" id="pwd" placeholder="输入密码" onkeydown="if(event.key==='Enter')login()">
+    <button onclick="login()">登 录</button>
+  </div>
 </div>
 <div id="app" style="display:none">
-  <div class="top">
-    <h1>LincComment 管理后台</h1>
-    <div class="sub">linchuan-blog.netlify.app</div>
-    <div class="btns">
-      <button class="btn btn-refresh" onclick="load()">刷新</button>
-      <button class="btn btn-out" onclick="logout()">退出</button>
+  <div class="top-bar">
+    <div class="top-inner">
+      <div class="top-title">LincComment</div>
+      <div class="top-actions">
+        <button class="btn btn-ghost" onclick="load()">刷新</button>
+        <button class="btn btn-ghost" onclick="logout()">退出</button>
+      </div>
     </div>
   </div>
-  <div class="stats" id="stats"></div>
+  <div class="stats-bar" id="stats"></div>
   <div class="list" id="list"></div>
 </div>
 <script>
@@ -78,7 +137,7 @@ function login(){
   pwd=document.getElementById('pwd').value;if(!pwd)return;
   load().then(function(ok){if(ok){document.getElementById('login').style.display='none';document.getElementById('app').style.display='block'}else alert('密码错误')});
 }
-function logout(){pwd='';document.getElementById('login').style.display='block';document.getElementById('app').style.display='none'}
+function logout(){pwd='';document.getElementById('login').style.display='flex';document.getElementById('app').style.display='none'}
 
 function fmt(t){if(!t)return'';var d=new Date(t);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')}
 
@@ -88,33 +147,30 @@ function load(){
     var groups={},total=0,awaiting=0;
     data.forEach(function(c){var u=c.url||'/';if(!groups[u])groups[u]=[];groups[u].push(c);total++;if(c.status==='awaiting')awaiting++;});
     document.getElementById('stats').innerHTML=
-      '<div class="stat'+ (awaiting>0?' stat-await':'') +'"><div class="stat-num">'+awaiting+'</div><div class="stat-label">待审核</div></div>'
-      +'<div class="stat"><div class="stat-num">'+total+'</div><div class="stat-label">总评论数</div></div>'
-      +'<div class="stat"><div class="stat-num">'+Object.keys(groups).length+'</div><div class="stat-label">涉及文章</div></div>';
+      '<div class="stat-card'+(awaiting>0?' stat-await':'')+'"><div class="stat-num">'+awaiting+'</div><div class="stat-label">待审核</div></div>'
+      +'<div class="stat-card"><div class="stat-num">'+total+'</div><div class="stat-label">总评论数</div></div>'
+      +'<div class="stat-card"><div class="stat-num">'+Object.keys(groups).length+'</div><div class="stat-label">涉及文章</div></div>';
     var h='';
     for(var u in groups){
-      h+='<div class="card"><div class="card-title">'+u+'<span>'+groups[u].length+' 条</span></div>';
+      h+='<div class="article-group"><div class="article-title">'+u+'<span>'+groups[u].length+' 条</span></div>';
       groups[u].forEach(function(c){
-        var isAwaiting=c.status==='awaiting';
-        h+='<div class="row'+(isAwaiting?' awaiting':'')+'">'
-          +'<img class="avatar" src="'+c.avatar+'" alt="" onerror="this.style.background=\'#e8e8e8\'">'
-          +'<div class="row-body"><div class="row-head">'
-          +'<span class="row-nick">'+(c.nick||'匿名')+'</span>'
-          +(c.mail?'<span class="row-mail">'+c.mail+'</span>':'')
-          +'<span class="meta-right">'
-          +(isAwaiting?'<span class="badge badge-awaiting">待审核</span>':'')
-          +'<span class="row-time">'+fmt(c.createdat)+'</span>'
-          +'</span>'
-          +'</div><div class="row-text">'+(c.comment||'')+'</div></div>'
-          +'<div class="row-actions">'
-          +(isAwaiting?'<button class="btn-sm btn-approve" onclick="approve('+c.id+')">通过</button>':'')
-          +'<button class="btn-sm btn-del" onclick="del('+c.id+')">删除</button>'
+        var isAwait=c.status==='awaiting';
+        h+='<div class="comment-row'+(isAwait?' awaiting':'')+'">'
+          +'<img class="avatar" src="'+c.avatar+'" alt="" onerror="this.style.background=\'var(--rule)\'">'
+          +'<div class="comment-body"><div class="comment-head">'
+          +'<span class="comment-nick">'+(c.nick||'匿名')+'</span>'
+          +(c.mail?'<span class="comment-mail">'+c.mail+'</span>':'')
+          +'<span class="comment-time">'+fmt(c.createdat)+'</span>'
+          +'</div><div class="comment-text">'+(c.comment||'')+'</div></div>'
+          +'<div class="comment-actions">'
+          +(isAwait?'<button class="btn-sm btn-approve" onclick="approve('+c.id+')">通过</button>':'')
+          +'<button class="btn-sm btn-delete" onclick="del('+c.id+')">删除</button>'
           +'</div>'
           +'</div>';
       });
       h+='</div>';
     }
-    document.getElementById('list').innerHTML=h||'<div class="empty">暂无评论</div>';
+    document.getElementById('list').innerHTML=h||'<div class="empty-state">暂无评论</div>';
     return true;
   }).catch(function(){return false});
 }
